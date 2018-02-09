@@ -1,0 +1,186 @@
+i is: 1000000
+The number of records in the output file: 307295
+The number of invalid records is: 131290
+The number of valid records is: 868710
+The number of repeat donors detected so far is: 561217
+The number of recipients with repeat donors detected so far is: 3982
+i is: 2000000
+The number of records in the output file: 725724
+The number of invalid records is: 351914
+The number of valid records is: 1648086
+The number of repeat donors detected so far is: 921732
+The number of recipients with repeat donors detected so far is: 5437
+i is: 3000000
+The number of records in the output file: 1399689
+The number of invalid records is: 416014
+The number of valid records is: 2583986
+The number of repeat donors detected so far is: 1183477
+The number of recipients with repeat donors detected so far is: 5928
+i is: 4000000
+The number of records in the output file: 2020772
+The number of invalid records is: 610548
+The number of valid records is: 3389452
+The number of repeat donors detected so far is: 1367857
+The number of recipients with repeat donors detected so far is: 6213
+i is: 5000000
+The number of records in the output file: 2751454
+The number of invalid records is: 693122
+The number of valid records is: 4306878
+The number of repeat donors detected so far is: 1554580
+The number of recipients with repeat donors detected so far is: 6497
+i is: 6000000
+The number of records in the output file: 3487492
+The number of invalid records is: 786881
+The number of valid records is: 5213119
+The number of repeat donors detected so far is: 1722909
+The number of recipients with repeat donors detected so far is: 6605
+i is: 7000000
+The number of records in the output file: 4215431
+The number of invalid records is: 981972
+The number of valid records is: 6018028
+The number of repeat donors detected so far is: 1799576
+The number of recipients with repeat donors detected so far is: 6711
+i is: 8000000
+The number of records in the output file: 4602878
+The number of invalid records is: 1495696
+The number of valid records is: 6504304
+The number of repeat donors detected so far is: 1882419
+The number of recipients with repeat donors detected so far is: 6853
+i is: 9000000
+The number of records in the output file: 5025147
+The number of invalid records is: 1958184
+The number of valid records is: 7041816
+The number of repeat donors detected so far is: 1985256
+The number of recipients with repeat donors detected so far is: 7173
+i is: 10000000
+The number of records in the output file: 5459556
+The number of invalid records is: 2407093
+The number of valid records is: 7592907
+The number of repeat donors detected so far is: 2101893
+The number of recipients with repeat donors detected so far is: 7425
+i is: 11000000
+The number of records in the output file: 6026946
+The number of invalid records is: 2718970
+The number of valid records is: 8281030
+The number of repeat donors detected so far is: 2222419
+The number of recipients with repeat donors detected so far is: 7529
+i is: 12000000
+The number of records in the output file: 6643987
+The number of invalid records is: 2951988
+The number of valid records is: 9048012
+The number of repeat donors detected so far is: 2372357
+The number of recipients with repeat donors detected so far is: 7712
+i is: 13000000
+The number of records in the output file: 7299759
+The number of invalid records is: 3191510
+The number of valid records is: 9808490
+The number of repeat donors detected so far is: 2477033
+The number of recipients with repeat donors detected so far is: 7856
+i is: 14000000
+The number of records in the output file: 7873193
+The number of invalid records is: 3548884
+The number of valid records is: 10451116
+The number of repeat donors detected so far is: 2546217
+The number of recipients with repeat donors detected so far is: 7954
+i is: 15000000
+The number of records in the output file: 8466988
+The number of invalid records is: 3834213
+The number of valid records is: 11165787
+The number of repeat donors detected so far is: 2667091
+The number of recipients with repeat donors detected so far is: 8021
+i is: 16000000
+The number of records in the output file: 9323039
+The number of invalid records is: 3870782
+The number of valid records is: 12129218
+The number of repeat donors detected so far is: 2774469
+The number of recipients with repeat donors detected so far is: 8041
+i is: 17000000
+The number of records in the output file: 9877671
+The number of invalid records is: 4193573
+The number of valid records is: 12806427
+The number of repeat donors detected so far is: 2897041
+The number of recipients with repeat donors detected so far is: 8065
+i is: 18000000
+The number of records in the output file: 10246080
+The number of invalid records is: 4709688
+The number of valid records is: 13290312
+The number of repeat donors detected so far is: 3012492
+The number of recipients with repeat donors detected so far is: 8080
+i is: 19000000
+The number of records in the output file: 10536557
+The number of invalid records is: 5346602
+The number of valid records is: 13653398
+The number of repeat donors detected so far is: 3085007
+The number of recipients with repeat donors detected so far is: 8108
+i is: 20000000
+The number of records in the output file: 11111826
+The number of invalid records is: 5690234
+The number of valid records is: 14309766
+The number of repeat donors detected so far is: 3166098
+The number of recipients with repeat donors detected so far is: 8185
+i is: 21000000
+The number of records in the output file: 11180069
+The number of invalid records is: 6621472
+The number of valid records is: 14378528
+The number of repeat donors detected so far is: 3166617
+The number of recipients with repeat donors detected so far is: 8185
+i is: 22000000
+The number of records in the output file: 11463229
+The number of invalid records is: 7284132
+The number of valid records is: 14715868
+The number of repeat donors detected so far is: 3220767
+The number of recipients with repeat donors detected so far is: 8208
+i is: 23000000
+The number of records in the output file: 12159005
+The number of invalid records is: 7505183
+The number of valid records is: 15494817
+The number of repeat donors detected so far is: 3303883
+The number of recipients with repeat donors detected so far is: 8356
+i is: 24000000
+The number of records in the output file: 12681014
+The number of invalid records is: 7921007
+The number of valid records is: 16078993
+The number of repeat donors detected so far is: 3366039
+The number of recipients with repeat donors detected so far is: 8574
+i is: 25000000
+The number of records in the output file: 12923323
+The number of invalid records is: 8652846
+The number of valid records is: 16347154
+The number of repeat donors detected so far is: 3391891
+The number of recipients with repeat donors detected so far is: 8595
+i is: 26000000
+The number of records in the output file: 13596904
+The number of invalid records is: 8883358
+The number of valid records is: 17116642
+The number of repeat donors detected so far is: 3487792
+The number of recipients with repeat donors detected so far is: 8773
+i is: 27000000
+The number of records in the output file: 13894389
+The number of invalid records is: 9554439
+The number of valid records is: 17445561
+The number of repeat donors detected so far is: 3519226
+The number of recipients with repeat donors detected so far is: 8930
+i is: 28000000
+The number of records in the output file: 14311441
+The number of invalid records is: 10088354
+The number of valid records is: 17911646
+The number of repeat donors detected so far is: 3568226
+The number of recipients with repeat donors detected so far is: 9184
+i is: 29000000
+The number of records in the output file: 14989654
+The number of invalid records is: 10364177
+The number of valid records is: 18635823
+The number of repeat donors detected so far is: 3614160
+The number of recipients with repeat donors detected so far is: 9317
+========================================================================================
+Here are the final stats: 
+i is: 29260168
+The number of records in the output file: 15194947
+The number of invalid records is: 10408031
+The number of valid records is: 18852137
+The number of repeat donors detected so far is: 3625175
+The number of recipients with repeat donors detected so far is: 9345
+========================================================================================
+Here are the time-taken to run the pipeline of all donations from 2013 till now!: 
+finished computation at Fri Feb  9 14:37:22 2018
+elapsed time: 8422.22s

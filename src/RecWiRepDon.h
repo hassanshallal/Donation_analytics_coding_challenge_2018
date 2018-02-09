@@ -19,7 +19,6 @@
 #include <math.h>
 
 using namespace std;
-
 class RecWiRepDon {
 private:
     //Two private data members; a vector of ascending sorted contributions and an int of total contributions

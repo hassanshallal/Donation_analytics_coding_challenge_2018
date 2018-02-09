@@ -5,7 +5,7 @@
  */
 
 /* 
- * File:   pipelineController.h
+ * File:   PipelineController.h
  * Author: hassanshallal
  *
  * Created on February 8, 2018, 8:57 PM
@@ -17,16 +17,23 @@
 #include <iostream>
 #include <fstream>
 #include <map>
+#include <ctime>
 
 #include "RecWiRepDon.h"
 
 using namespace std;
 
-class pipelineController {
-    
+class PipelineController {
 private:
-    
+    //Input and output file names are static private members
+    const string inputPercentile = "/Users/hassanshallal/Downloads/percentile.txt";
+    const string inputRecords = "/Users/hassanshallal/Downloads/itcont.txt";
+    const string outputName = "/Users/hassanshallal/Downloads/repeat_donors.txt";
+    const string statsName = "/Users/hassanshallal/Downloads/globalStats.txt";
+
+    //The current percentile
     int percentile;
+
     //Initialize an empty map and a corresponding iterator for the previous donors. Also initialize a bool
     map<string, vector<int>> prevDonors;
     map<string, vector<int>>::iterator prevDonorsIt;
@@ -36,12 +43,6 @@ private:
     map<string, RecWiRepDon*> RecWiRepDonMap;
     map<string, RecWiRepDon*>::iterator RecWiRepDonMapIt;
 
-
-    //Keep record count, keep track of valid and invalid lines
-    int i = 0; //record counter
-    vector<int> validRecords;
-    vector<int> inValidRecords;
-
     //We will have line-specific variables that are needed for decision making and for output, these variables are update every line
     string CMTE_ID;
     string NAME;
@@ -49,9 +50,23 @@ private:
     int year;
     string TRANSACTION_AMT;
 
+    //PipelineController is a singleton, it has a private constructor in which the input and output files are specified
+    PipelineController();
+    //private pointer to the solo-instance
+    static PipelineController* _instance;
+
 public:
 
-    pipelineController(const string inputPercentile, const string inputRecords, const string outputName);
+    //public instance method for singleton
+    static PipelineController* Instance();
+
+    //Keep record count, keep track of valid and invalid lines
+    int i = 0; //input record counter
+    int j = 0; //output record counter
+    vector<int> validRecords;
+    vector<int> inValidRecords;
+
+    vector<int> analyze();
 
     //Two utility methods
     vector<int> findPipeLocations(const string &sample) const; // Find the pipe locations in a string
@@ -70,9 +85,20 @@ public:
 #endif /* PIPELINECONTROLLER_H */
 
 // Implementation of the .h methods
+PipelineController* PipelineController::_instance = nullptr;
 
-pipelineController::pipelineController(const string inputPercentile, const string inputRecords, const string outputName) {
+PipelineController::PipelineController() {
+};
 
+PipelineController* PipelineController::Instance() {
+    if (_instance == nullptr) {
+        _instance = new PipelineController;
+    }
+    return _instance;
+}
+
+vector<int> PipelineController::analyze() {
+    auto start = std::chrono::system_clock::now();
     // Open the percentile file, get the percentile value
     ifstream percentileInput;
     percentileInput.open(inputPercentile);
@@ -88,6 +114,9 @@ pipelineController::pipelineController(const string inputPercentile, const strin
     //Let's open an output file
     ofstream output;
     output.open(outputName);
+
+    ofstream statsOutput;
+    statsOutput.open(statsName);
 
     //We will start reading line by line and writing the results to the output file line by line
     string a; //whole line
@@ -126,19 +155,51 @@ pipelineController::pipelineController(const string inputPercentile, const strin
                         string finalResult;
                         finalResult = CMTE_ID + "|" + ZIP_CODE + "|" + to_string(year) + curResult;
                         output << finalResult << endl;
+                        j++;
                     }
                 };
             } else {
                 inValidRecords.push_back(i);
             }
+            if (i % 1000000 == 0) {
+                statsOutput << "i is: " << to_string(i) << endl;
+                statsOutput << "The number of records in the output file: " << to_string(j) << endl;
+                statsOutput << "The number of invalid records is: " << inValidRecords.size() << endl;
+                statsOutput << "The number of valid records is: " << validRecords.size() << endl;
+                statsOutput << "The number of repeat donors detected so far is: " << prevDonors.size() << endl;
+                statsOutput << "The number of recipients with repeat donors detected so far is: " << RecWiRepDonMap.size() << endl;
+            }
         }
     }
+
+    
+    statsOutput << "========================================================================================" << endl;
+    statsOutput << "Here are the final stats: " << endl;
+    statsOutput << "i is: " << to_string(i) << endl;
+    statsOutput << "The number of records in the output file: " << to_string(j) << endl;
+    statsOutput << "The number of invalid records is: " << inValidRecords.size() << endl;
+    statsOutput << "The number of valid records is: " << validRecords.size() << endl;
+    statsOutput << "The number of repeat donors detected so far is: " << prevDonors.size() << endl;
+    statsOutput << "The number of recipients with repeat donors detected so far is: " << RecWiRepDonMap.size() << endl;
+
+    auto end = std::chrono::system_clock::now();
+
+    chrono::duration<double> elapsed_seconds = end - start;
+    time_t end_time = chrono::system_clock::to_time_t(end);
+
+    statsOutput << "========================================================================================" << endl;
+    statsOutput << "Here is the time-taken to run the pipeline of all donations from 2013 till now: " << endl;
+    statsOutput << "finished computation at " << ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s\n";
+
+    
     //close all open files
     itcont.close();
     output.close();
+    statsOutput.close();
+    return inValidRecords;
 }
 
-bool pipelineController::isValidRecord(string curLine) {
+bool PipelineController::isValidRecord(string curLine) {
 
     //Some local variables for validating a single record of the input file
     string TRANSACTION_DT;
@@ -156,7 +217,7 @@ bool pipelineController::isValidRecord(string curLine) {
 
     //extract and validate CMTE_ID
     CMTE_ID = curLine.substr(0, pipeLocVec.at(0));
-    if (checkRecipient(CMTE_ID)) {
+    if (CMTE_ID.size() > 0 && checkRecipient(CMTE_ID)) {
         validCMTE_ID = true;
     };
 
@@ -164,22 +225,22 @@ bool pipelineController::isValidRecord(string curLine) {
     NAME = curLine.substr(pipeLocVec[6] + 1, pipeLocVec[7] - pipeLocVec[6] - 1);
     //Extract and validate ZIP_CODE
     ZIP_CODE = curLine.substr(pipeLocVec[9] + 1, (pipeLocVec[10] - pipeLocVec[9] - 1));
-    if (checkZIP_CODE(ZIP_CODE)) {
+    if (ZIP_CODE.size() > 0 && checkZIP_CODE(ZIP_CODE)) {
         ZIP_CODE = ZIP_CODE.substr(0, 5);
         validZIP_CODE = true;
     };
 
     //Extract and validate TRANSACTION_DT
-    TRANSACTION_DT = curLine.substr(pipeLocVec[12] + 1, pipeLocVec[13] - pipeLocVec[12] - 1);
-    if (checkTRANSACTION_DT(TRANSACTION_DT)) {
-        validTRANSACTION_DT = true;
-    };
 
-    year = stoi(TRANSACTION_DT.substr(4, 4));
+    TRANSACTION_DT = curLine.substr(pipeLocVec[12] + 1, pipeLocVec[13] - pipeLocVec[12] - 1);
+    if (TRANSACTION_DT.size() > 0 && checkTRANSACTION_DT(TRANSACTION_DT)) {
+        validTRANSACTION_DT = true;
+        year = stoi(TRANSACTION_DT.substr(4, 4));
+    };
 
     //Extract and validate TRANSACTION_AMT
     TRANSACTION_AMT = curLine.substr(pipeLocVec[13] + 1, pipeLocVec[14] - pipeLocVec[13] - 1);
-    if (checkTRANSACTION_AMT(TRANSACTION_AMT)) {
+    if (TRANSACTION_AMT.size() > 0 && checkTRANSACTION_AMT(TRANSACTION_AMT)) {
         validTRANSACTION_AMT = true;
     };
 
@@ -192,7 +253,7 @@ bool pipelineController::isValidRecord(string curLine) {
     return (validCMTE_ID && validZIP_CODE && validTRANSACTION_DT && validTRANSACTION_AMT && isIndividual);
 }
 
-vector<int> pipelineController::findPipeLocations(const string &sample) const {
+vector<int> PipelineController::findPipeLocations(const string &sample) const {
     vector<int> positions;
     for (size_t i = 0; i < sample.size(); ++i) {
         if (sample[i] == '|') {
@@ -202,7 +263,7 @@ vector<int> pipelineController::findPipeLocations(const string &sample) const {
     return positions;
 }
 
-bool pipelineController::checkRecipient(const string recipient) const {
+bool PipelineController::checkRecipient(const string recipient) const {
     if (recipient.size() != 9) {
         return false;
     };
@@ -228,7 +289,7 @@ bool pipelineController::checkRecipient(const string recipient) const {
     };
 }
 
-bool pipelineController::checkZIP_CODE(const string ZIP_CODE) const {
+bool PipelineController::checkZIP_CODE(const string ZIP_CODE) const {
     //at least 5 digits
     if (ZIP_CODE.size() < 5) {
         return false;
@@ -237,7 +298,7 @@ bool pipelineController::checkZIP_CODE(const string ZIP_CODE) const {
     }
 }
 
-bool pipelineController::checkTRANSACTION_DT(const string TRANSACTION_DT) const {
+bool PipelineController::checkTRANSACTION_DT(const string TRANSACTION_DT) const {
     //at least 8 digits
     if (TRANSACTION_DT.size() != 8) {
         return false;
@@ -246,11 +307,11 @@ bool pipelineController::checkTRANSACTION_DT(const string TRANSACTION_DT) const 
     };
 }
 
-bool pipelineController::checkTRANSACTION_AMT(const string TRANSACTION_AMT) const {
+bool PipelineController::checkTRANSACTION_AMT(const string TRANSACTION_AMT) const {
     return all_of(TRANSACTION_AMT.begin(), TRANSACTION_AMT.end(), ::isdigit);
 }
 
-bool pipelineController::checkPriority(const vector<int> years, const int curRecordYear) const {
+bool PipelineController::checkPriority(const vector<int> years, const int curRecordYear) const {
     for (size_t i = 0; i < years.size(); ++i) {
         if (years[i] > curRecordYear) {
             return true;
