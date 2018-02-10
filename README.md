@@ -1,1 +1,20 @@
-# Donation_analytics_coding_challenge_2018
+## Summary
+This is my submission to the Insight coding challenge. For full and detailed information about the challenge, please refer to the full description here: https://github.com/InsightDataScience/donation-analytics
+
+Whenever I use the term "Global dataset", I mean a dataset with all the donation records from 2013 up until now, downloaded from https://classic.fec.gov/finance/disclosure/ftpdet.shtml.
+
+1)  A singleton PipelineController class is in charge of processing the input, performing the required analytics, and write the results to the output.
+2)  The current implementation is conservative in regards to validating records prior to any analysis. Testing the current pipeline against the global dataset, invalidated 10408031 cases out of a total of 29260168 donation records (almost around 35% of all the cases).
+3)  As far as donors with repeat contributions are concerned, a map that maps keys (Donor name_Donor zip code) to values (a vector of years of contributions) offers easy implementation along with fast lookup. A total of 3625175 donors with repeat contributions were detected among the valid records.
+4) Concerning recipients with repeat donors, an independent class named RecWiRepDon was implemented to add an extra layer of abstraction to the pipeline and to offer more flexibility in terms of information storage and retrieval. By doing so, the current pipeline can be very easily modified to extract specific information about any specific recipient. The current pipeline detected 9345 recipients with repeat donors in the global dataset.
+5) PipelineController maintains control over all the instances of RecWiRepDon class via a map that maps keys (recipient ID)  to values (RecWiRepDon pointers to their corresponding instances).  This design decision, again, offers a more subtle and robust access to a specific instance and its data members.
+6) Here are the phases a single donation record (a single line of the itcont.txt input file) goes through within the current pipeline design/implementation:
+A] Validation phase: Is the record valid? If no, it is ignored, if yes, it is advanced to the next phase.
+B] Donor with repeat contribution(s) phase: For a valid record, is the donor a repeat donor? A repeat donor is a donor who donated to any recipient in the current or previous years, but not in a future year; a scenario that exists sometimes because of the lack of strict chronological order in the input data. The PipelineController solo instance maintains a map of unique previous donors along with which years they donated, so, answering this question is a matter of searching and maintaining this map.
+C] Recipients with donors with repeat contribution(s) phase: For a valid record with a repeat donor, the pipeline either creates an instance of RecWiRepDon in case this recipient has never been instantiated or maintains an existing instance of this recipient in order to answer the challenge question. Maintaining a sorted vector of the contributions recieved by a recipient from donors with repeat contributions is critical for computing a given percentile value.
+7) In terms of runtime efficiency, the current pipeline analyzed the global dataset of around 30M records in about 2 hours. Please refer to earlier commits for more details about these experiments.
+8) In terms of memory efficiency, running the current version of the pipeline on the global dataset consumed a total memory in the order of 0.5 GB towards the end of the run. As a baseline, I think this is reasonable.
+9) There are so many areas of improvement among which the most obvious one is adding more logic to the validation phase in order to significantly reduce the number of invalid records with, may be, important or relevant information to retrieve. I also think that enforcing a strict chronological order before processing the donation records can add a significant improvement in terms of cutting the number of invalid records. More functionalities can be added to perform different type of analyses.
+
+
+In case you have any question, please contact me at hshallal@icloud.com. 
