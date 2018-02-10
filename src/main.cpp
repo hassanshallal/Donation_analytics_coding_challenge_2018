@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
 
     PipelineController * current = PipelineController::Instance();
     vector<int> inValidRecords = current->analyze();
-    saveVecIntoTxt(inValidRecords, "global_invalid_records");
+    saveVecIntoTxt(inValidRecords, "global_invalid_records.txt");
    
     return 0;
 }

@@ -26,10 +26,11 @@ using namespace std;
 class PipelineController {
 private:
     //Input and output file names are static private members
-    const string inputPercentile = "/Users/hassanshallal/Downloads/percentile.txt";
-    const string inputRecords = "/Users/hassanshallal/Downloads/itcont.txt";
+    const string inputPercentile = "percentile.txt";
+    const string inputRecords = "/Users/hassanshallal/Downloads/itcont.txt"; 
     const string outputName = "/Users/hassanshallal/Downloads/repeat_donors.txt";
-    const string statsName = "/Users/hassanshallal/Downloads/globalStats.txt";
+    const string statsName = "globalStatsExp2.txt";
+    
 
     //The current percentile
     int percentile;
@@ -44,11 +45,11 @@ private:
     map<string, RecWiRepDon*>::iterator RecWiRepDonMapIt;
 
     //We will have line-specific variables that are needed for decision making and for output, these variables are update every line
-    string CMTE_ID;
-    string NAME;
-    string ZIP_CODE;
+    string recipientID;
+    string name;
+    string zipCode;
     int year;
-    string TRANSACTION_AMT;
+    string donationAmount;
 
     //PipelineController is a singleton, it has a private constructor in which the input and output files are specified
     PipelineController();
@@ -63,6 +64,7 @@ public:
     //Keep record count, keep track of valid and invalid lines
     int i = 0; //input record counter
     int j = 0; //output record counter
+    int k = 1000000; //Print global stats in the globalStats output every k lines.
     vector<int> validRecords;
     vector<int> inValidRecords;
 
@@ -74,9 +76,9 @@ public:
 
     // We need to have some validation functions that validates the important entries in each line
     bool checkRecipient(const string recipient) const;
-    bool checkZIP_CODE(const string ZIP_CODE) const;
-    bool checkTRANSACTION_DT(const string TRANSACTION_DT) const;
-    bool checkTRANSACTION_AMT(const string TRANSACTION_AMT) const;
+    bool checkzipCode(const string zipCode) const;
+    bool checkdonationDate(const string donationDate) const;
+    bool checkdonationAmount(const string donationAmount) const;
     bool isValidRecord(string curLine);
 
 
@@ -130,7 +132,7 @@ vector<int> PipelineController::analyze() {
             if (isValidRecord(a)) {
                 validRecords.push_back(i);
 
-                string curKey = NAME + "_" + ZIP_CODE; //Based on the assumption that the a repeat donor must have the same name and the same zip code
+                string curKey = name + "_" + zipCode; //Based on the assumption that the a repeat donor must have the same name and the same zip code
                 prevDonorsIt = prevDonors.find(curKey); //is the curKey already in the prevDonors map?
 
                 if (prevDonorsIt == prevDonors.end()) {//curKey is not in the prevDonors map
@@ -144,16 +146,16 @@ vector<int> PipelineController::analyze() {
 
                         //Now that we have a record with a repeat donor, we have to check whether the RecWiRepDonMap map has a key for the current recipient along with a value of a pointer to its instance or not. If RecWiRepDonMap map doesn't have the current recipient, we add instantiate an instance and add a key/value pair. If it does, we update the current object in place.
                         string curResult; //this is the "|the ?th percentile contribution|the total dollar amount of contributions|the total number of contributions from repeat donors"
-                        RecWiRepDonMapIt = RecWiRepDonMap.find(CMTE_ID);
+                        RecWiRepDonMapIt = RecWiRepDonMap.find(recipientID);
                         if (RecWiRepDonMapIt == RecWiRepDonMap.end()) {
-                            RecWiRepDonMap[CMTE_ID] = new RecWiRepDon(stoi(TRANSACTION_AMT)); //Instantiate a new instance
-                            curResult = RecWiRepDonMap[CMTE_ID]->printRecWiRepDon(percentile);
+                            RecWiRepDonMap[recipientID] = new RecWiRepDon(stoi(donationAmount)); //Instantiate a new instance
+                            curResult = RecWiRepDonMap[recipientID]->printRecWiRepDon(percentile);
                         } else {
-                            RecWiRepDonMap[CMTE_ID]->updateRecWiRepDon(stoi(TRANSACTION_AMT)); //Update a current instance
-                            curResult = RecWiRepDonMap[CMTE_ID]->printRecWiRepDon(percentile);
+                            RecWiRepDonMap[recipientID]->updateRecWiRepDon(stoi(donationAmount)); //Update a current instance
+                            curResult = RecWiRepDonMap[recipientID]->printRecWiRepDon(percentile);
                         };
                         string finalResult;
-                        finalResult = CMTE_ID + "|" + ZIP_CODE + "|" + to_string(year) + curResult;
+                        finalResult = recipientID + "|" + zipCode + "|" + to_string(year) + curResult;
                         output << finalResult << endl;
                         j++;
                     }
@@ -161,37 +163,40 @@ vector<int> PipelineController::analyze() {
             } else {
                 inValidRecords.push_back(i);
             }
-            if (i % 1000000 == 0) {
-                statsOutput << "i is: " << to_string(i) << endl;
+            if (i % k == 0) {
+                statsOutput << "The number of processed records so far is: " << to_string(i) << endl;
                 statsOutput << "The number of records in the output file: " << to_string(j) << endl;
                 statsOutput << "The number of invalid records is: " << inValidRecords.size() << endl;
                 statsOutput << "The number of valid records is: " << validRecords.size() << endl;
                 statsOutput << "The number of repeat donors detected so far is: " << prevDonors.size() << endl;
                 statsOutput << "The number of recipients with repeat donors detected so far is: " << RecWiRepDonMap.size() << endl;
+                auto end = chrono::system_clock::now();
+                chrono::duration<double> elapsed_seconds = end - start;
+                time_t end_time = chrono::system_clock::to_time_t(end);
+                statsOutput << "Here is the time-taken to run the pipeline up to this point: " << flush;
+                statsOutput << elapsed_seconds.count() << "s\n";
+                statsOutput << "========================================================================================" << endl;
             }
         }
     }
 
-    
     statsOutput << "========================================================================================" << endl;
     statsOutput << "Here are the final stats: " << endl;
-    statsOutput << "i is: " << to_string(i) << endl;
+    statsOutput << "The total number of processed records  is: " << to_string(i) << endl;
     statsOutput << "The number of records in the output file: " << to_string(j) << endl;
     statsOutput << "The number of invalid records is: " << inValidRecords.size() << endl;
     statsOutput << "The number of valid records is: " << validRecords.size() << endl;
     statsOutput << "The number of repeat donors detected so far is: " << prevDonors.size() << endl;
     statsOutput << "The number of recipients with repeat donors detected so far is: " << RecWiRepDonMap.size() << endl;
 
-    auto end = std::chrono::system_clock::now();
-
+    auto end = chrono::system_clock::now();
     chrono::duration<double> elapsed_seconds = end - start;
     time_t end_time = chrono::system_clock::to_time_t(end);
-
     statsOutput << "========================================================================================" << endl;
     statsOutput << "Here is the time-taken to run the pipeline of all donations from 2013 till now: " << endl;
     statsOutput << "finished computation at " << ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s\n";
 
-    
+
     //close all open files
     itcont.close();
     output.close();
@@ -202,12 +207,12 @@ vector<int> PipelineController::analyze() {
 bool PipelineController::isValidRecord(string curLine) {
 
     //Some local variables for validating a single record of the input file
-    string TRANSACTION_DT;
-    string OTHER_ID;
-    bool validCMTE_ID = false;
-    bool validZIP_CODE = false;
-    bool validTRANSACTION_DT = false;
-    bool validTRANSACTION_AMT = false;
+    string donationDate;
+    string individualOrEntity;
+    bool validrecipientID = false;
+    bool validzipCode = false;
+    bool validDonationDate = false;
+    bool validDonationAmount = false;
     bool isIndividual = false;
     bool validRecord = false;
 
@@ -215,42 +220,42 @@ bool PipelineController::isValidRecord(string curLine) {
     //find all the pipe locations
     vector<int> pipeLocVec = findPipeLocations(curLine);
 
-    //extract and validate CMTE_ID
-    CMTE_ID = curLine.substr(0, pipeLocVec.at(0));
-    if (CMTE_ID.size() > 0 && checkRecipient(CMTE_ID)) {
-        validCMTE_ID = true;
+    //extract and validate recipientID
+    recipientID = curLine.substr(0, pipeLocVec.at(0));
+    if (recipientID.size() > 0 && checkRecipient(recipientID)) {
+        validrecipientID = true;
     };
 
     //Extract name, any thing can be a name, no validation is required here
-    NAME = curLine.substr(pipeLocVec[6] + 1, pipeLocVec[7] - pipeLocVec[6] - 1);
-    //Extract and validate ZIP_CODE
-    ZIP_CODE = curLine.substr(pipeLocVec[9] + 1, (pipeLocVec[10] - pipeLocVec[9] - 1));
-    if (ZIP_CODE.size() > 0 && checkZIP_CODE(ZIP_CODE)) {
-        ZIP_CODE = ZIP_CODE.substr(0, 5);
-        validZIP_CODE = true;
+    name = curLine.substr(pipeLocVec[6] + 1, pipeLocVec[7] - pipeLocVec[6] - 1);
+    //Extract and validate zipCode
+    zipCode = curLine.substr(pipeLocVec[9] + 1, (pipeLocVec[10] - pipeLocVec[9] - 1));
+    if (zipCode.size() > 0 && checkzipCode(zipCode)) {
+        zipCode = zipCode.substr(0, 5);
+        validzipCode = true;
     };
 
-    //Extract and validate TRANSACTION_DT
+    //Extract and validate donationDate
 
-    TRANSACTION_DT = curLine.substr(pipeLocVec[12] + 1, pipeLocVec[13] - pipeLocVec[12] - 1);
-    if (TRANSACTION_DT.size() > 0 && checkTRANSACTION_DT(TRANSACTION_DT)) {
-        validTRANSACTION_DT = true;
-        year = stoi(TRANSACTION_DT.substr(4, 4));
+    donationDate = curLine.substr(pipeLocVec[12] + 1, pipeLocVec[13] - pipeLocVec[12] - 1);
+    if (donationDate.size() > 0 && checkdonationDate(donationDate)) {
+        validDonationDate = true;
+        year = stoi(donationDate.substr(4, 4));
     };
 
-    //Extract and validate TRANSACTION_AMT
-    TRANSACTION_AMT = curLine.substr(pipeLocVec[13] + 1, pipeLocVec[14] - pipeLocVec[13] - 1);
-    if (TRANSACTION_AMT.size() > 0 && checkTRANSACTION_AMT(TRANSACTION_AMT)) {
-        validTRANSACTION_AMT = true;
+    //Extract and validate donationAmount
+    donationAmount = curLine.substr(pipeLocVec[13] + 1, pipeLocVec[14] - pipeLocVec[13] - 1);
+    if (donationAmount.size() > 0 && checkdonationAmount(donationAmount)) {
+        validDonationAmount = true;
     };
 
-    //Extract and validate OTHER_ID
-    OTHER_ID = curLine.substr(pipeLocVec[14] + 1, pipeLocVec[15] - pipeLocVec[14] - 1);
-    if (OTHER_ID.empty()) {
+    //Extract and validate individualOrEntity
+    individualOrEntity = curLine.substr(pipeLocVec[14] + 1, pipeLocVec[15] - pipeLocVec[14] - 1);
+    if (individualOrEntity.empty()) {
         isIndividual = true;
     };
 
-    return (validCMTE_ID && validZIP_CODE && validTRANSACTION_DT && validTRANSACTION_AMT && isIndividual);
+    return (validrecipientID && validzipCode && validDonationDate && validDonationAmount && isIndividual);
 }
 
 vector<int> PipelineController::findPipeLocations(const string &sample) const {
@@ -289,26 +294,26 @@ bool PipelineController::checkRecipient(const string recipient) const {
     };
 }
 
-bool PipelineController::checkZIP_CODE(const string ZIP_CODE) const {
+bool PipelineController::checkzipCode(const string zipCode) const {
     //at least 5 digits
-    if (ZIP_CODE.size() < 5) {
+    if (zipCode.size() < 5) {
         return false;
     } else {
-        return all_of(ZIP_CODE.begin(), ZIP_CODE.end(), ::isdigit); //the zip code must only contain digits otherwise it is malformed
+        return all_of(zipCode.begin(), zipCode.end(), ::isdigit); //the zip code must only contain digits otherwise it is malformed
     }
 }
 
-bool PipelineController::checkTRANSACTION_DT(const string TRANSACTION_DT) const {
+bool PipelineController::checkdonationDate(const string donationDate) const {
     //at least 8 digits
-    if (TRANSACTION_DT.size() != 8) {
+    if (donationDate.size() != 8) {
         return false;
     } else {
         return true;
     };
 }
 
-bool PipelineController::checkTRANSACTION_AMT(const string TRANSACTION_AMT) const {
-    return all_of(TRANSACTION_AMT.begin(), TRANSACTION_AMT.end(), ::isdigit);
+bool PipelineController::checkdonationAmount(const string donationAmount) const {
+    return all_of(donationAmount.begin(), donationAmount.end(), ::isdigit);
 }
 
 bool PipelineController::checkPriority(const vector<int> years, const int curRecordYear) const {
